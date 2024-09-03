@@ -17,7 +17,7 @@ def fetch_wikipedia_page(url):
         HTTPError: If the HTTP request returned an unsuccessful status code.
     """
     
-    return None
+    return url
 
 
 def extract_title(soup):
