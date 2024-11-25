@@ -1,45 +1,47 @@
 import csv
 import re
 
-
 def clean_text(line):
-    """
-    Clean the text line by removing non-ASCII characters and fixing known issues.
 
-    Args:
-        line (str): The line of text to clean.
-
-    Returns:
-        str: The cleaned line of text.
-    """
-    # Replace non-breaking spaces and other non-ASCII characters
-    
-    return None
-
+    return re.sub(r'[^\x00-\x7F]+', '', line)
 
 def extract_weather_data(text_file):
-    """
-    Extract weather data from a text file using regular expressions.
 
-    Args:
-        text_file (str): Path to the text file.
+    pattern = r"Date:\s*(\d{4}-\d{2}-\d{2}),\s*Max\s*Temp:\s*([\d\.]+)°C,\s*Min\s*Temp:\s*([\d\.]+)°C,\s*Humidity:\s*(\d+)%,\s*Precipitation:\s*([\d\.]+)mm"
 
-    Returns:
-        list of dict: A list of dictionaries with extracted weather data.
-    """
+    weather_data = []
 
+    with open(text_file, 'r', encoding='utf-8') as file:
+        for line in file:
+            # Очищаємо кожен рядок перед обробкою
+            line = clean_text(line)
 
-    return None
+            # Застосовуємо регулярний вираз
+            match = re.search(pattern, line)
+            if match:
+                # Зберігаємо знайдені дані в словнику
+                weather_data.append({
+                    'Date': match.group(1),
+                    'Max Temperature': match.group(2),
+                    'Min Temperature': match.group(3),
+                    'Humidity': match.group(4),
+                    'Precipitation': match.group(5)
+                })
+
+    return weather_data
 
 def save_to_csv(data, filename="extracted_weather_data.csv"):
-    """
-    Save extracted weather data to a CSV file.
 
-    Args:
-        data (list of dict): Extracted weather data.
-        filename (str): Name of the CSV file.
-    """
-    
-    pass
+    headers = ['Date', 'Max Temperature', 'Min Temperature', 'Humidity', 'Precipitation']
 
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
 
+text_file = 'weather_report.txt'
+extracted_data = extract_weather_data(text_file)
+
+save_to_csv(extracted_data, 'extracted_weather_data.csv')
+print("Weather data has been successfully exported to 'extracted_weather_data.csv'.")
